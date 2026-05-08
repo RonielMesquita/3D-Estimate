@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Standalone output reduces build memory and produces a minimal deploy image
+  output: 'standalone',
   // Disable source maps in production — biggest memory saver during build
   productionBrowserSourceMaps: false,
   experimental: {
