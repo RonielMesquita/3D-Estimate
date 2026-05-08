@@ -125,4 +125,3 @@ export default function ModelViewer({ url }: Props) {
   return <primitive object={scene} />
 }
 
-useGLTF.preload("/models/beachlife-house2.glb")

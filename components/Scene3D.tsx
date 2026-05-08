@@ -10,10 +10,12 @@ import StepOptionCards from "./StepOptionCards"
 import SelectedPhaseCard from "./SelectedPhaseCard"
 import NavigationBar from "./NavigationBar"
 import { useProjectStore } from "@/store/useProjectStore"
+import { useAdminStore } from "@/store/useAdminStore"
 import { useShallow } from "zustand/react/shallow"
 
 function SceneContent() {
   const cameraRef = useRef<CameraControls>(null)
+  const modelUrl = useAdminStore((s) => s.modelUrl)
 
   return (
     <>
@@ -25,7 +27,7 @@ function SceneContent() {
       <Ground />
 
       <Suspense fallback={null}>
-        <ModelViewer url="/models/beachlife-house2.glb" />
+        <ModelViewer url={modelUrl} />
       </Suspense>
 
       <AdaptiveDpr pixelated />

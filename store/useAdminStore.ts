@@ -13,6 +13,8 @@ export interface ProjectSettings {
 interface AdminState {
   phases: Phase[]
   projectSettings: ProjectSettings
+  modelUrl: string
+  setModelUrl: (url: string) => void
   updatePhase: (phaseId: string, patch: Partial<Omit<Phase, "id" | "options">>) => void
   updateOption: (phaseId: string, optionId: string, patch: Partial<PhaseOption>) => void
   updateProjectSettings: (patch: Partial<ProjectSettings>) => void
@@ -37,6 +39,9 @@ export const useAdminStore = create<AdminState>()(
     (set, get) => ({
       phases: defaultPhases,
       projectSettings: DEFAULT_SETTINGS,
+      modelUrl: "/models/beachlife-house2.glb",
+
+      setModelUrl: (url) => set({ modelUrl: url }),
 
       updatePhase: (phaseId, patch) =>
         set((s) => ({
@@ -105,7 +110,7 @@ export const useAdminStore = create<AdminState>()(
           ),
         })),
 
-      resetToDefault: () => set({ phases: defaultPhases, projectSettings: DEFAULT_SETTINGS }),
+      resetToDefault: () => set({ phases: defaultPhases, projectSettings: DEFAULT_SETTINGS, modelUrl: "/models/beachlife-house2.glb" }),
     }),
     { name: "beachlife_config" }
   )

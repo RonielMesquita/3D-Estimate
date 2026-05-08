@@ -345,7 +345,8 @@ function AdminUI() {
           </>
         )}
         {tab === "configuracoes" && <SettingsView settings={projectSettings} onUpdate={(p) => { updateProjectSettings(p); markDirty() }} />}
-        {tab !== "passos" && tab !== "configuracoes" && <PlaceholderTab label={TABS.find((t) => t.id === tab)?.label ?? tab} />}
+        {tab === "midia" && <MediaTab />}
+        {tab !== "passos" && tab !== "configuracoes" && tab !== "midia" && <PlaceholderTab label={TABS.find((t) => t.id === tab)?.label ?? tab} />}
       </div>
 
       <PublishModal   open={showPublish} onClose={() => setShowPublish(false)} onConfirm={handlePublish} phases={phases} />
@@ -963,6 +964,70 @@ function SettingsView({ settings, onUpdate }: { settings: { title: string; subti
           <FInput label="Moeda"         value={settings.currency} onChange={(v) => onUpdate({ currency: v })} placeholder="USD" />
         </div>
       </div>
+    </div>
+  )
+}
+
+function MediaTab() {
+  const modelUrl  = useAdminStore((s) => s.modelUrl)
+  const setModelUrl = useAdminStore((s) => s.setModelUrl)
+  const isElectron = typeof window !== "undefined" && !!window.electron
+
+  const fileName = modelUrl.startsWith("blob:")
+    ? "Modelo carregado (temporário)"
+    : modelUrl.split("/").pop() ?? modelUrl
+
+  async function handleElectronPick() {
+    const url = await window.electron!.openGlbDialog()
+    if (url) setModelUrl(url)
+  }
+
+  function handleWebPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    setModelUrl(url)
+  }
+
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", padding: 32, gap: 24, overflowY: "auto" }}>
+      <div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4 }}>Modelo 3D</div>
+        <div style={{ fontSize: 13, color: C.textMuted }}>Arquivo .glb exportado do SketchUp para este projeto</div>
+      </div>
+
+      {/* Current model */}
+      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ width: 48, height: 48, borderRadius: 10, background: C.elevated, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>◻</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>
+          <div style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>{modelUrl.startsWith("/") ? "Modelo padrão do projeto" : modelUrl.startsWith("blob:") ? "Carregado nesta sessão" : "Arquivo local"}</div>
+        </div>
+      </div>
+
+      {/* Pick button */}
+      {isElectron ? (
+        <button onClick={handleElectronPick} style={{ alignSelf: "flex-start", padding: "10px 24px", borderRadius: 8, background: C.blue, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT }}>
+          Selecionar arquivo .glb
+        </button>
+      ) : (
+        <>
+          <input ref={inputRef} type="file" accept=".glb,.gltf" style={{ display: "none" }} onChange={handleWebPick} />
+          <button onClick={() => inputRef.current?.click()} style={{ alignSelf: "flex-start", padding: "10px 24px", borderRadius: 8, background: C.blue, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT }}>
+            Selecionar arquivo .glb
+          </button>
+          <div style={{ fontSize: 12, color: C.textMuted }}>No navegador o modelo é temporário — reiniciar a página reseta para o padrão. Use o app desktop para persistir o modelo.</div>
+        </>
+      )}
+
+      {/* Reset */}
+      {modelUrl !== "/models/beachlife-house2.glb" && (
+        <button onClick={() => setModelUrl("/models/beachlife-house2.glb")} style={{ alignSelf: "flex-start", padding: "8px 16px", borderRadius: 8, background: "transparent", color: C.textMuted, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: FONT }}>
+          Restaurar modelo padrão
+        </button>
+      )}
     </div>
   )
 }

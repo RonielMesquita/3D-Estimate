@@ -2,11 +2,42 @@
   "name": "beachlife-3d",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build:win": "npm run build && electron-builder --win",
+    "electron:build:mac": "npm run build && electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.beachlife.3d",
+    "productName": "BeachLife 3D",
+    "directories": { "output": "dist" },
+    "files": [
+      "electron/**/*",
+      "!node_modules"
+    ],
+    "extraResources": [
+      { "from": ".next/standalone", "to": "app" },
+      { "from": ".next/static",     "to": "app/.next/static" },
+      { "from": "public",           "to": "app/public" }
+    ],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "public/window.svg"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerLanguages": ["pt_BR", "en_US"],
+      "language": "1046"
+    }
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -25,9 +56,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "concurrently": "^9.2.1",
+    "electron": "^42.0.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^9",
     "eslint-config-next": "^15.3.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.0.5"
   }
 }
