@@ -7,13 +7,28 @@ const nextConfig: NextConfig = {
     // Next.js 15 built-in webpack memory optimizations
     webpackMemoryOptimizations: true,
   },
-  webpack(config) {
+  webpack(config, { isServer }) {
+    // Limit parallel workers to reduce peak memory during build
+    config.parallelism = 1
+
     // Prevent webpack from processing binary 3D model files
     config.module.rules.push({
       test: /\.(glb|gltf|fbx|obj)$/,
       type: "asset/resource",
       generator: { emit: false },
     })
+
+    // Reduce chunk size to avoid memory spikes
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: "all",
+          maxSize: 200000,
+        },
+      }
+    }
+
     return config
   },
 };
