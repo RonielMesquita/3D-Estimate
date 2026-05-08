@@ -1,19 +1,10 @@
-FROM node:20-alpine AS builder
-WORKDIR /app
-ENV NODE_OPTIONS=--max_old_space_size=4096
-ENV NEXT_TELEMETRY_DISABLED=1
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npx next build
-
-FROM node:20-alpine AS runner
+FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY public ./public
+COPY .next/standalone ./
+COPY .next/static ./.next/static
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
