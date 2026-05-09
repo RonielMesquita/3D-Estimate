@@ -26,6 +26,8 @@ jobs:
         run: npm ci
 
       - name: Build Next.js
+      timeout-minutes: 30
+timeout-minutes: 30
         run: npx next build
         env:
           NODE_OPTIONS: --max_old_space_size=4096
